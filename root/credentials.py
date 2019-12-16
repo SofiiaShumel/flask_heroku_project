@@ -1,0 +1,5 @@
+username = 'ffjoxlxobjxweu'
+password = '92195f2f8b9287e6b2c71494c89c0a0a2be96efb2508e87586f6e55def8a934e'
+host = 'ec2-23-21-225-251.compute-1.amazonaws.com'
+port = '5432'
+database = 'd9aodpsg883l4j'

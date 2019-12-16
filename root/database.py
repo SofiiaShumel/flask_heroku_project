@@ -1,13 +1,19 @@
 from root.entities import *
+import root.credentials
 
 import sqlalchemy as db
 from sqlalchemy.orm import Session
 
 
+
 class Database():
-
-    engine = db.create_engine('postgresql://postgres:edcpolo@localhost/Messengers')
-
+    cstr = 'postgresql://{user}:{password}@{hostname}/{database}'.format(
+        user=root.credentials.username,
+        password=root.credentials.password,
+        hostname=root.credentials.host,
+        database=root.credentials.database
+    )
+    engine = db.create_engine(cstr)
 
     def __init__(self):
         self.connection = self.engine.connect()
