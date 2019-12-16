@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Players</title>
+</head>
+
+
+
+<body>
+{% extends 'index.html' %}
+{%block content %}
+{{ super() }}
+<a href="{{url_for('create_catagory')}}" class="btn btn-primary">Create new catagory</a>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Population</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for catagory in all_catagory %}
+    <tr>
+        <td>{{catagory.catagory_name}}</td>
+        <td>{{catagory.population}}</td>
+        <td class="d-flex justify-content-end">
+            <a href="{{url_for('update_catagory', catagory_name = catagory.catagory_name)}}" class="btn btn-success">Edit</a>
+            <a href="{{url_for('delete_catagory', catagory_name = catagory.catagory_name)}}" class="btn btn-danger">Delete</a>
+
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+{%endblock%}
+
+
+</body>
+</html>

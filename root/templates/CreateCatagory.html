@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Catagory</title>
+</head>
+<body>
+
+{% extends 'index.html' %}
+{%block content %}
+{{ super() }}
+
+<form method="post">
+    {{form.hidden_tag()}}
+
+    <div class="form-group">
+
+        {{form.catagory_name.label}}
+        {{form.catagory_name}}
+
+        {{form.population.label}}
+        {{form.population}}
+
+
+    </div>
+    {{form.Submit(class_="btn btn-success")}}
+</form>
+
+{%endblock%}
+
+
+</body>
+</html>

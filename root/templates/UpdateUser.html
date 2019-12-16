@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update User</title>
+</head>
+<body>
+
+{% extends 'index.html' %}
+{%block content %}
+{{ super() }}
+
+<form method="post">
+    {{form.hidden_tag()}}
+
+    <div class="form-group">
+        {{form.first_name.label}}
+        {{form.first_name}}
+        {{form.second_name.label}}
+        {{form.second_name}}
+
+    </div>
+    {{form.submit(class_="btn btn-success")}}
+</form>
+
+{%endblock%}
+
+
+</body>
+</html>

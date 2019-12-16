@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Messages</title>
+</head>
+
+
+
+<body>
+{% extends 'index.html' %}
+{%block content %}
+{{ super() }}
+<a href="{{url_for('create_message')}}" class="btn btn-primary">Create new message</a>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Recipient</th>
+        <th scope="col">Sender</th>
+        <th scope="col">Date sent</th>
+        <th scope="col">Messenger</th>
+        <th scope="col">Content</th>
+        <th scope="col">Category</th>
+        <th scope="col">Count of clicks</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for mes in all_messages %}
+    <tr>
+        <td>{{mes.messege_id}}</td>
+        <td>{{mes.recipient}}</td>
+        <td>{{mes.sender}}</td>
+        <td>{{mes.date_sent}}</td>
+        <td>{{mes.messenger}}</td>
+        <td>{{mes.content}}</td>
+        <td>{{mes.catagory}}</td>
+        <td>{{mes.count_clicks}}</td>
+        <td class="d-flex justify-content-end">
+            <a href='{{url_for("update_message", message_id = mes.messege_id)}}' class="btn btn-success">Edit</a>
+            <a href="{{url_for('delete_message', message_id = mes.messege_id)}}" class="btn btn-danger">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+{%endblock%}
+
+
+</body>
+</html>
