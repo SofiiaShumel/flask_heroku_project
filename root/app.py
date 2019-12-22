@@ -22,6 +22,11 @@ db = Database()
 
 
 
+@app.route('/')
+def main_page():
+    return render_template('index.html')
+
+
 @app.route('/dashboard')
 def dashboard():
     message_data = db.fetchAllMessages()
@@ -65,9 +70,6 @@ def dashboard():
 
 
 
-@app.route('/')
-def main_page():
-    return render_template('index.html')
 
 
 @app.route('/user')

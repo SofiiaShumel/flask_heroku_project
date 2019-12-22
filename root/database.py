@@ -19,7 +19,25 @@ class Database():
         self.connection = self.engine.connect()
         print('DB Instance created')
 
-#-----------------------------------Users-------------------------------------
+    def getAttach(self):
+        first = Attach(file_type='.pdf', name='name1', size='15')
+        second = Attach(file_type='.txt', name='name2', size='35')
+        third = Attach(file_type='.pdf', name='name3', size='15')
+
+        session = Session(bind=self.connection)
+
+        session.add(first)
+        session.add(second)
+        session.add(third)
+
+        session.commit()
+
+    def fetchAllAttach(self):
+        self.session = Session(bind=self.connection)
+        attach = self.session.query(Attach).all()
+        return attach
+
+    #-----------------------------------Users-------------------------------------
 
 
     def fetchAllUsers(self):
@@ -130,6 +148,11 @@ class Database():
         Data = session.query(Catagory).filter(Catagory.catagory_name == catagory_name).first()
         session.delete(Data)
         session.commit()
+
+
+#-----------------------ATTACH-------------------------
+
+
 
 
 #

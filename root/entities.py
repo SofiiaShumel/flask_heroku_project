@@ -15,7 +15,6 @@ class Users(Base):
     second_name = Column(String)
 
 
-
 class Message(Base):
     __tablename__ = 'message'
     messege_id = Column(Integer, primary_key=True)
@@ -27,6 +26,18 @@ class Message(Base):
     catagory = Column(String)
     count_clicks = Column(Integer)
 
+    # attaches = relationship("Attach", back_populates='message')
+
+class Attach(Base):
+    __tablename__= 'attach'
+    # message = Column(Integer, ForeignKey('Message.messege_id'))
+    # messages = relationship("Message", back_populates='attach')
+    file_type = Column(String, nullable=False)
+    name = Column(String, primary_key=True, nullable=False)
+    size = Column(Integer, nullable=False)
+    date_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+
+
 
 
 # class Messenger(Base):
@@ -34,7 +45,9 @@ class Message(Base):
 #     messenger_id = Column(Integer, primary_key=True)
 #     messenger_name = Column(String, nullable=False)
 #     users = relationship('User_messengers', backref='messenger')
-#
+
+
+
 # class User_messengers(Base):
 #     __tablename__ = 'user_messengers'
 #     user_messenger_id = Column(Integer, primary_key=True)
