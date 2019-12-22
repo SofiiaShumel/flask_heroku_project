@@ -26,18 +26,6 @@ class Message(Base):
     catagory = Column(String)
     count_clicks = Column(Integer)
 
-    # attaches = relationship("Attach", back_populates='message')
-
-class Attach(Base):
-    __tablename__= 'attach'
-    # message = Column(Integer, ForeignKey('Message.messege_id'))
-    # messages = relationship("Message", back_populates='attach')
-    file_type = Column(String, nullable=False)
-    name = Column(String, primary_key=True, nullable=False)
-    size = Column(Integer, nullable=False)
-    date_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
-
-
 
 
 # class Messenger(Base):

@@ -13,29 +13,12 @@ class Database():
         hostname=root.credentials.host,
         database=root.credentials.database
     )
-    engine = db.create_engine(cstr)
+
+    engine = db.create_engine(cstr,  pool_size=20, max_overflow=0)
 
     def __init__(self):
         self.connection = self.engine.connect()
         print('DB Instance created')
-
-    def getAttach(self):
-        first = Attach(file_type='.pdf', name='name1', size='15')
-        second = Attach(file_type='.txt', name='name2', size='35')
-        third = Attach(file_type='.pdf', name='name3', size='15')
-
-        session = Session(bind=self.connection)
-
-        session.add(first)
-        session.add(second)
-        session.add(third)
-
-        session.commit()
-
-    def fetchAllAttach(self):
-        self.session = Session(bind=self.connection)
-        attach = self.session.query(Attach).all()
-        return attach
 
     #-----------------------------------Users-------------------------------------
 

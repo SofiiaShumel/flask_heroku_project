@@ -37,9 +37,6 @@ def dashboard():
         message_id.append(message.messege_id)
         clicks.append(message.count_clicks)
 
-
-
-
     bar = go.Bar(
         x = message_id,
         y =clicks
