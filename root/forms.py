@@ -38,7 +38,7 @@ class CatagoryForm(FlaskForm):
 
     Submit = SubmitField('Submit')
 
-    def validare(self):
+    def validate(self):
         if float(self.population.data) < 0:
             raise ValidationError("Population more than 0")
             return False

@@ -7,14 +7,14 @@ from sqlalchemy.orm import Session
 
 
 class Database():
-    cstr = 'postgresql://{user}:{password}@{hostname}/{database}'.format(
-        user=root.credentials.username,
-        password=root.credentials.password,
-        hostname=root.credentials.host,
-        database=root.credentials.database
-    )
+    # cstr = 'postgresql://{user}:{password}@{hostname}/{database}'.format(
+    #     user=root.credentials.username,
+    #     password=root.credentials.password,
+    #     hostname=root.credentials.host,
+    #     database=root.credentials.database
+    # )
 
-    engine = db.create_engine(cstr,  pool_size=20, max_overflow=0)
+    engine = db.create_engine('postgres://qhsmovulrcixsq:4de2d87cc269e6e20a3b9d3a3cafd5b28eb5deb674a965ccb74db00dffc5e9f8@ec2-174-129-255-11.compute-1.amazonaws.com:5432/dd8urtd5qotins',  pool_size=20, max_overflow=0)
 
     def __init__(self):
         self.connection = self.engine.connect()

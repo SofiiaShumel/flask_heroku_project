@@ -16,7 +16,7 @@ class Users(Base):
 
 
 class Message(Base):
-    __tablename__ = 'message'
+    __tablename__ = 'Message'
     messege_id = Column(Integer, primary_key=True)
     recipient = Column(String)
     sender = Column(String, nullable=False)
