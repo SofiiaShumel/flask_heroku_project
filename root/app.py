@@ -10,15 +10,22 @@ import os
 
 from root.database import Database
 from root.forms import UpdateUserForm, UserForm, UpdateCatagoryForm, CatagoryForm, MessageForm
-from root.entities import Users, Catagory, Message
+from root.entities import *
 
 
 app = Flask(__name__)
 
-SECRET_KEY = os.urandom(32)
+SECRET_KEY = os.urandom(24)
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://qhsmovulrcixsq:4de2d87cc269e6e20a3b9d3a3cafd5b28eb5deb674a965ccb74db00dffc5e9f8@ec2-174-129-255-11.compute-1.amazonaws.com:5432/dd8urtd5qotins'
 
 db = Database()
+
+
+Base.metadata.create_all(db.sqlalchemy_engine)
+
+session = db.sqlalchemy_session
+
 
 
 
