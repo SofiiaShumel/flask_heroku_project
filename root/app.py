@@ -37,15 +37,15 @@ def main_page():
 @app.route('/dashboard')
 def dashboard():
     message_data = db.fetchAllMessages()
-    message_id = []
+    messager_id = []
     clicks = []
 
     for message in message_data:
-        message_id.append(message.messege_id)
+        messager_id.append(message.messenger)
         clicks.append(message.count_clicks)
 
     bar = go.Bar(
-        x = message_id,
+        x = messager_id,
         y =clicks
     )
 
