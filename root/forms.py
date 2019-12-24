@@ -1,11 +1,18 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Length, ValidationError
+from wtforms import IntegerField, StringField, PasswordField, SubmitField, SelectField
+from wtforms.validators import DataRequired, Length, ValidationError, InputRequired, NumberRange
 
 class UserForm(FlaskForm):
     username = StringField('Username',
-            validators=[DataRequired(), Length(min=2, max=20)])
-    password = PasswordField('Password', validators=[DataRequired()])
+            validators=[InputRequired()])
+
+
+    def validate_name (form, field):
+        if len(field.data) > 20:
+            raise ValidationError('Username must be less than 20 character')
+    password = PasswordField('Password',
+
+            validators=[DataRequired()])
     first_name = StringField('First Name',
             validators=[DataRequired(), Length(min=2, max=30)])
     second_name = StringField('Second Name',
@@ -49,3 +56,15 @@ class UpdateCatagoryForm(FlaskForm):
     population = IntegerField('Population',
             validators=[DataRequired()])
     Submit = SubmitField('Submit')
+
+
+class AttachForm(FlaskForm):
+
+    file_type = StringField('File type',
+                            validators=[DataRequired()])
+    name = StringField('Name',
+                       validators=[DataRequired()])
+    size = IntegerField('Size',
+                        validators=[DataRequired(), NumberRange(min = 0)])
+
+    submit = SubmitField('Submit')

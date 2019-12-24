@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Attach</title>
+</head>
+<body>
+
+{% extends 'index.html' %}
+{%block content %}
+{{ super() }}
+
+<form method="post">
+    {{form.hidden_tag()}}
+
+    <div class="form-group">
+
+        {{form.file_type.label}}
+        {{form.file_type}}
+
+        {{form.name.label}}
+        {{form.name}}
+
+        {{form.size.label}}
+        {{form.size}}
+
+    </div>
+    {{form.submit(class_="btn btn-success")}}
+</form>
+
+{%endblock%}
+
+
+</body>
+</html>

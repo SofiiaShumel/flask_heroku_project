@@ -204,3 +204,15 @@ class Database(object):
         Data = self.sqlalchemy_session.query(Catagory).filter(Catagory.catagory_name == catagory_name).first()
         self.sqlalchemy_session.delete(Data)
         self.sqlalchemy_session.commit()
+
+
+#------TASK--------
+
+    def addAttach(self, attach):
+        self.sqlalchemy_session.add(attach)
+        self.sqlalchemy_session.commit()
+
+    def fetchAllAttaches(self):
+        attaches = self.sqlalchemy_session.query(Attach).all()
+        return attaches
+

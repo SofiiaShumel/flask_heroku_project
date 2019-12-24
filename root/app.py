@@ -9,9 +9,8 @@ import plotly.express as px
 import os
 
 from root.database import Database
-from root.forms import UpdateUserForm, UserForm, UpdateCatagoryForm, CatagoryForm, MessageForm
+from root.forms import *
 from root.entities import *
-
 
 app = Flask(__name__)
 
@@ -36,18 +35,18 @@ def main_page():
 
 @app.route('/dashboard')
 def dashboard():
-    message_data = db.fetchAllMessages()
-    messager_id = []
-    clicks = []
-
-    for message in message_data:
-        messager_id.append(message.messenger)
-        clicks.append(message.count_clicks)
-
-    bar = go.Bar(
-        x = messager_id,
-        y =clicks
-    )
+    # message_data = db.fetchAllMessages()
+    # messager_id = []
+    # clicks = []
+    #
+    # for message in message_data:
+    #     messager_id.append(message.messenger)
+    #     clicks.append(message.count_clicks)
+    #
+    # bar = go.Bar(
+    #     x = messager_id,
+    #     y =clicks
+    # )
 
     catagory_data = db.fetchAllCatagory()
     catagory_name = []
@@ -62,6 +61,18 @@ def dashboard():
         values = population
     )
 
+    attach_data = db.fetchAllAttaches()
+    attach_name = []
+    attach_size = []
+
+    for attach in attach_data:
+        attach_name.append(attach.name)
+        attach_size.append(attach.size)
+
+    bar = go.Bar(
+        x=attach_name,
+        y=attach_size
+    )
 
     data = {
         "bar": [bar],
@@ -69,8 +80,11 @@ def dashboard():
     }
 
 
+
     graphsJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template("dashboard.html", graphsJSON=graphsJSON)
+
+
 
 
 
@@ -215,6 +229,42 @@ def create_message():
             db.create_messege(message)
             return redirect(url_for("messages"))
     return render_template("CreateMessage.html", form=form)
+
+
+#-------TASK--------
+
+@app.route('/get')
+def get_new():
+    first = Attach(file_type = '.pdf', name = 'pic1', size = '15')
+    second = Attach(file_type = '.pdf', name = 'pic2', size = '20')
+    third = Attach(file_type = '.txt', name = 'cur', size = '50')
+    db.addAttach(first)
+    db.addAttach(second)
+    db.addAttach(third)
+    return 'Succesfull!'
+
+@app.route('/show')
+def attaches():
+    all_attaches = db.fetchAllAttaches()
+    return render_template('attach.html', all_attaches=all_attaches)
+
+@app.route('/create_attache')
+def create_attach():
+    form = AttachForm()
+
+    if request.method == "POST":
+        if not form.validate():
+            return render_template("CreateAttach.html", form=form)
+        else:
+            file_type = form.file_type.data
+            name = form.name.data
+            size = form.size.data
+
+            attach = Attach(file_type=file_type, name=name, size=size)
+            db.addAttach(attach)
+            return redirect(url_for("attaches"))
+    return render_template("CreateAttach.html", form=form)
+
 
 
 if __name__ == '__main__':

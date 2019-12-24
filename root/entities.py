@@ -56,3 +56,12 @@ class Catagory(Base):
     __tablename__ = 'catagory'
     catagory_name = Column(String, primary_key=True)
     population = Column(Integer)
+
+
+class Attach(Base):
+    __tablename__ = 'attach'
+    file_type = Column(String)
+    name = Column(String, primary_key=True)
+    size = Column(Integer)
+    data = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+
