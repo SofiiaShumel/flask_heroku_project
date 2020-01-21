@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Form</title>
+    <style>
+
+        form {
+        background-color: #2E434A;
+        color: white;
+
+        }
+        .class-form {
+            width: 25%;
+            margin: auto;
+            padding: 10px;
+        }
+        .class-form h1{
+            text-align: center;
+
+        }
+        .mistake{
+            color:  E2AF25;
+            font-size: 5;
+        }
+
+        .class-form p {
+            margin: auto;
+             text-align: center;
+             padding: 10px;
+             font-size: 4;
+        }
+
+        .class-form a {
+            color: white,
+            font-size: 6;
+        }
+    </style>
+
+
+
+</head>
+
+{% extends "base.html" %}
+<body>
+
+{% block body %}
+
+ <div class="class-form">
+    <form method="POST">
+
+        <h1> {{tittle}} </h1>
+        {% if error %}
+        <p><strong>{{error}}</strong></p>
+        {% endif %}
+
+
+        <p>
+            {{form.username.label}}
+        </p>
+        <p>
+            {{form.username}}
+        </p>
+
+        <p>
+
+            {%  for error in form.username.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{form.password.label}}
+        </p>
+
+        <p>
+            {{form.password}}
+        </p>
+
+        <p>
+            {%  for error in form.password.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{form.confirm.label}}
+        </p>
+
+        <p>
+            {{form.confirm}}
+        </p>
+
+        <p>
+
+            {%  for error in form.confirm.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{form.location.label}}
+        </p>
+
+        <p>
+            {{form.location}}
+        </p>
+
+
+        <p><input type="submit" value="SUBMIT"></p>
+
+    </form>
+ </div>
+{% endblock %}
+</body>
+</html>

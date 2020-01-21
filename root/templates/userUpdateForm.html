@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Form</title>
+</head>
+
+{% extends "admin_base.html" %}
+
+<body>
+{% block content %}
+
+
+    <h1> {{tittle}} </h1>
+    {% if error %}
+    <p><strong>Error: {{error}}</strong></p>
+    {% endif %}
+
+    <form method="POST">
+
+
+        <p>
+            {{form.username.label}}
+            {{form.username}}
+
+            {%  for error in form.username.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            Если хотите поменять пароль, введите новый:
+            {{form.password}}
+
+            {%  for error in form.password.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+
+        <p>
+            {{form.location.label}}
+            {{form.location}}
+        </p>
+
+
+        <p><input type="submit" value="SUBMIT"></p>
+
+    </form>
+{% endblock %}
+
+</body>
+</html>

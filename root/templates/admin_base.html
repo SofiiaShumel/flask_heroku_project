@@ -12,7 +12,7 @@
 
 {% block content %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="{{url_for('main_page')}}">Main page</a>
+  <a class="navbar-brand" href="{{url_for('admin')}}">Main page</a>
 
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -21,11 +21,13 @@
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     <div class="navbar-nav">
 
-      <a class="nav-item nav-link" href="{{url_for('dashboard')}}">Dashboard</a>
-      <a class="nav-item nav-link" href = "{{url_for('users')}}">User</a>
+      <a class="nav-item nav-link" href="{{url_for('users')}}">Users</a>
+      <a class="nav-item nav-link" href="{{url_for('messengers')}}">Messengers</a>
+      <a class="nav-item nav-link" href="{{url_for('category')}}">Categories</a>
       <a class="nav-item nav-link" href="{{url_for('messages')}}">Message</a>
-      <a class="nav-item nav-link" href="{{url_for('catagory')}}">Catagory</a>
-      <a class="nav-item nav-link" href="{{url_for('attaches')}}">Attach</a>
+
+      <a class="navbar-brand" href = "{{url_for('login')}}">Log out</a>
+
     </div>
   </div>
 </nav>

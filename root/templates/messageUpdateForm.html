@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Message Form</title>
+</head>
+
+{% extends "admin_base.html" %}
+
+<body>
+{% block content %}
+
+    <h1> Изменить сообщение </h1>
+    {% if error %}
+    <p><strong>Error: {{error}}</strong></p>
+    {% endif %}
+
+
+    <form method="POST">
+        <p>
+            User:
+            {{user}}
+        </p>
+
+        <p>
+            Tittle:
+            {{data.tittle}}
+        </p>
+
+        <p>
+            Text:
+            {{data.body}}
+
+        </p>
+
+        <p>
+            {{form.messenger.label}}
+            {{form.messenger}}
+
+        </p>
+
+        <p>
+            {{form.category.label}}
+            {{form.category}}
+        </p>
+
+        <p><input type="submit" value="SUBMIT"></p>
+    </form>
+
+
+{% endblock %}
+
+
+</body>
+</html>

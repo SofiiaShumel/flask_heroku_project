@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Category Form</title>
+</head>
+
+{%extends "admin_base.html" %}
+
+
+<body>
+
+{% block content%}
+{{ super() }}
+
+    <h1>{{tittle}}</h1>
+    {% if error %}
+    <p><strong>Error: {{error}}</strong></p>
+    {% endif %}
+
+    <form method="POST">
+
+        <p>
+            {{form.category_name.label}}
+            {{form.category_name}}
+
+            {%  for error in form.category_name.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{form.amount.label}}
+            {{form.amount}}
+
+
+            {%  for error in form.amount.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+
+
+        </p>
+
+        <p><input type="submit" value="SUBMIT"></p>
+
+    </form>
+
+
+{% endblock %}
+
+
+
+</body>
+</html>

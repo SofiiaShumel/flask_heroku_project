@@ -9,37 +9,53 @@
 
 
 <body>
-{% extends 'index.html' %}
+{% extends 'admin_base.html' %}
 {%block content %}
 {{ super() }}
 <a href="{{url_for('create_message')}}" class="btn btn-primary">Create new message</a>
 <table class="table table-striped">
     <thead>
     <tr>
-        <th scope="col">Id</th>
-        <th scope="col">Recipient</th>
-        <th scope="col">Sender</th>
-        <th scope="col">Date sent</th>
+        <th scope="col">ID</th>
+        <th scope="col">User </th>
+        <th scope="col">Tittle </th>
+        <th scope="col">Body</th>
+        <th scope="col">Creation date</th>
         <th scope="col">Messenger</th>
-        <th scope="col">Content</th>
         <th scope="col">Category</th>
-        <th scope="col">Count of clicks</th>
     </tr>
     </thead>
     <tbody>
-    {% for mes in all_messages %}
+    {% for message in all_messages %}
     <tr>
-        <td>{{mes.messege_id}}</td>
-        <td>{{mes.recipient}}</td>
-        <td>{{mes.sender}}</td>
-        <td>{{mes.date_sent}}</td>
-        <td>{{mes.messenger}}</td>
-        <td>{{mes.content}}</td>
-        <td>{{mes.catagory}}</td>
-        <td>{{mes.count_clicks}}</td>
+        <td>{{message.message_id}}</td>
+        <td>
+
+            {% for user in all_users if user.user_id == message.user_fk %}
+                {{user.display_name}}
+            {% endfor %}
+        </td>
+
+        <td>{{message.tittle}}</td>
+        <td>{{message.body}}</td>
+        <td>{{message.creation_date}}</td>
+
+        <td>
+
+            {% for messenger in all_messengers if messenger.messenger_id == message.messenger_fk %}
+                {{messenger.messenger_name}}
+            {% endfor%}
+        </td>
+        <td>
+            {% for category in all_categories if category.category_id == message.category_fk%}
+                {{category.category_name}}
+            {% endfor %}
+
+        </td>
+
         <td class="d-flex justify-content-end">
-            <a href='{{url_for("update_message", message_id = mes.messege_id)}}' class="btn btn-success">Edit</a>
-            <a href="{{url_for('delete_message', message_id = mes.messege_id)}}" class="btn btn-danger">Delete</a>
+            <a href="{{url_for('update_message', message_id = message.message_id)}}" class="btn btn-success">Edit</a>
+            <a href="{{url_for('delete_message', message_id = message.message_id)}}" class="btn btn-danger">Delete</a>
         </td>
     </tr>
     {% endfor %}

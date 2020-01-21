@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Message Form</title>
+</head>
+
+{% extends "admin_base.html" %}
+
+<body>
+{% block content %}
+
+    <h1> {{tittle}} </h1>
+    {% if error %}
+    <p><strong>Error: {{error}}</strong></p>
+    {% endif %}
+
+
+    <form method="POST">
+        <p>
+            {{form.user.label}}
+            {{form.user}}
+
+            {%  for error in form.user.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{form.tittle.label}}
+            {{form.tittle}}
+
+            {%  for error in form.tittle.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{form.body.label}}
+            {{form.body}}
+
+            {%  for error in form.body.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{form.messenger.label}}
+            {{form.messenger}}
+
+            {%  for error in form.messenger.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+
+        </p>
+
+        <p>
+            {{form.category.label}}
+            {{form.category}}
+
+            {%  for error in form.category.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+
+        </p>
+
+        <p><input type="submit" value="SUBMIT"></p>
+    </form>
+
+
+{% endblock %}
+
+
+</body>
+</html>

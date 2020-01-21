@@ -59,12 +59,8 @@ class UpdateCatagoryForm(FlaskForm):
 
 
 class AttachForm(FlaskForm):
-
-    file_type = StringField('File type',
-                            validators=[DataRequired()])
-    name = StringField('Name',
-                       validators=[DataRequired()])
-    size = IntegerField('Size',
-                        validators=[DataRequired(), NumberRange(min = 0)])
+    file_type = StringField('File type', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired()])
+    size = IntegerField('Size', validators=[DataRequired()])
 
     submit = SubmitField('Submit')

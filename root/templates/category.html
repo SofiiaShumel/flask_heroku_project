@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Category</title>
+</head>
+
+
+
+<body>
+{% extends 'admin_base.html' %}
+{%block content %}
+{{ super() }}
+<a href="{{url_for('create_category')}}" class="btn btn-primary">Create new catagory</a>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Name</th>
+        <th scope="col">Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for category in all_category %}
+    <tr>
+        <td>{{category.category_id}}</td>
+        <td>{{category.category_name}}</td>
+        <td>{{category.population_count}}</td>
+        <td class="d-flex justify-content-end">
+            <a href="{{url_for('update_category', category_id = category.category_id)}}" class="btn btn-success">Edit</a>
+            <a href="{{url_for('delete_category', category_id = category.category_id)}}" class="btn btn-danger">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+{%endblock%}
+
+
+</body>
+</html>

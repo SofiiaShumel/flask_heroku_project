@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Messenger Form</title>
+</head>
+
+{% extends 'admin_base.html' %}
+
+<body>
+{%block content%}
+
+    <h1> {{tittle}} </h1>
+    {% if error %}
+    <p><strong>Error: {{error}}</strong></p>
+    {% endif %}
+
+    <form method="POST">
+        <p>
+            {{form.messenger_name.label}}
+            {{form.messenger_name}}
+
+            {%  for error in form.messenger_name.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p><input type="submit" value="SUBMIT"></p>
+
+    </form>
+
+{% endblock %}
+
+</body>
+</html>

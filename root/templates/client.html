@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{client}}</title>
+    <style>
+        h1{
+        text-align: centre;
+        }
+
+        .class-form {
+        background-color:  #2E434A;
+        color: white;
+        margin: auto;
+        width: 30%;
+
+        }
+        .class-form p{
+        padding: 10px;}
+
+        table {
+         border-collapse: collapse;
+        }
+
+        table, th{
+            width: 50%;
+            margin: auto;
+          border: 1px solid black;
+        }
+
+        .tittle{
+        font-size:5;
+        text-decoration: underline;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <h1>Привет, {{ client }} </h1>
+    <p><a href = '{{url_for("login")}}'>Logout</a></p>
+
+
+    <table>
+        <tbody>
+        {% for message in messages %}
+        <tr>
+            <td class = 'first-row'>
+                <p class = 'tittle'>Title: {{message.tittle}}</p>
+                <p>{{message.body}}</p>
+            </td>
+
+            <td>
+                {{message.creation_date}}
+
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+<div class = 'class-form'>
+        <form method="POST">
+            <p>
+                {{form.tittle.label}}
+                {{form.tittle}}
+
+                {%  for error in form.tittle.errors %}
+                <span style="color: red; ">[{{error}}]</span>
+                {% endfor %}
+            </p>
+
+         <p>
+            {{form.body.label}}
+            {{form.body}}
+
+            {%  for error in form.body.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{form.messenger.label}}
+            {{form.messenger}}
+
+            {%  for error in form.messenger.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+
+        </p>
+
+        <p>
+            {{form.category.label}}
+            {{form.category}}
+
+            {%  for error in form.category.errors %}
+            <span style="color: red; ">[{{error}}]</span>
+            {% endfor %}
+
+        </p>
+
+        <p><input type="submit" value="SUBMIT"></p>
+
+
+        </form>
+</div>
+
+
+
+</body>
+</html>

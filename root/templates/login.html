@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<!--    <link rel = stylesheet href = 'static/css/style.css'>-->
+    <style>
+        form {
+        background-color: #2E434A;
+        color: white;
+
+        }
+        .class-form {
+            width: 25%;
+            margin: auto;
+            padding: 10px;
+        }
+        .class-form h1{
+            text-align: center;
+
+        }
+        .mistake{
+            color:  E2AF25;
+            font-size: 5;
+        }
+
+        .class-form p {
+            margin: auto;
+             text-align: center;
+             padding: 10px;
+             font-size: 4;
+        }
+
+        .class-form a {
+            color: white,
+            font-size: 6;
+        }
+    </style>
+
+
+</head>
+{% extends "base.html" %}
+<body>
+{% block body %}
+
+
+<div class="class-form">
+    <form method="POST">
+
+        <h1>Login</h1>
+        {% if error %}
+        <div class = 'mistake'>
+        <p><strong>{{error}}</strong></p>
+        </div>
+        {% endif %}
+
+        <p>
+            {{form.username.label}}
+        </p>
+
+        <p>
+            {{form.username}}
+        </p>
+
+        <p>
+            {{form.password.label}}
+        </p>
+
+        <p>
+            {{form.password}}
+        </p>
+
+
+        <p><input type="submit" value="Login"></p>
+
+    </form>
+    <p> <a href="{{url_for('register')}}"> Регистрация </a> </p>
+</div>
+
+{% endblock %}
+</body>
+</html>

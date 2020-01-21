@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Messengers</title>
+</head>
+
+
+
+<body>
+{% extends 'admin_base.html' %}
+{%block content %}
+{{ super() }}
+
+<a href="{{url_for('create_messenger')}}" class="btn btn-primary">Create new messenger</a>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Name</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for messenger in all_messengers %}
+    <tr>
+        <td>{{messenger.messenger_id}}</td>
+        <td>{{messenger.messenger_name}}</td>
+
+        <td class="d-flex justify-content-end">
+            <a href="{{url_for('update_messenger', messenger_id = messenger.messenger_id)}}" class="btn btn-success">Edit</a>
+            <a href="{{url_for('delete_messenger', messenger_id = messenger.messenger_id)}}" class="btn btn-danger">Delete</a>
+
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+{%endblock%}
+
+
+</body>
+</html>

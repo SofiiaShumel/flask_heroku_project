@@ -1,271 +1,453 @@
-from flask import Flask, render_template, url_for, request
-from werkzeug.utils import redirect
-
-import json
-import plotly
-import plotly.graph_objs as go
-import plotly.express as px
+from flask import Flask, render_template, redirect, url_for, request, flash
 
 import os
 
-from root.database import Database
-from root.forms import *
-from root.entities import *
+from root.dao.database import Database
+from root.dao.orm.model import *
+
+from root.forms.user import *
+from root.forms.category import *
+from root.forms.messenger import *
+from root.forms.message import *
+
+
 
 app = Flask(__name__)
 
 SECRET_KEY = os.urandom(24)
 app.config['SECRET_KEY'] = SECRET_KEY
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://qhsmovulrcixsq:4de2d87cc269e6e20a3b9d3a3cafd5b28eb5deb674a965ccb74db00dffc5e9f8@ec2-174-129-255-11.compute-1.amazonaws.com:5432/dd8urtd5qotins'
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://qhsmovulrcixsq:4de2d87cc269e6e20a3b9d3a3cafd5b28eb5deb674a965ccb74db00dffc5e9f8@ec2-174-129-255-11.compute-1.amazonaws.com:5432/dd8urtd5qotins'
 
 db = Database()
 
 
 Base.metadata.create_all(db.sqlalchemy_engine)
-
 session = db.sqlalchemy_session
 
+@app.route('/', methods = ['GET', 'POST'])
+def login():
+
+    error = None
+    form = LoginForm()
+
+
+    if request.method == 'POST':
+        user = request.form['username']
+        users = list(db.sqlalchemy_session.query(Users.display_name, Users.password).filter(
+            Users.display_name == user))
+
+
+        if user == 'admin' and \
+                request.form['password'] == 'secret':
+            return redirect(url_for('admin'))
+
+        elif not users:
+            error = 'Такой пользователь не существует: введите данные правильно или регистрируйтесь.'
+        elif request.form['password'] != users[0][1]:
+            error = 'Неправильный логин или пароль.'
+
+        else:
+            flash('Вы успешно ввошли!')
+            return redirect(url_for('client', username=user))
+
+    return render_template('login.html', error = error, form = form)
+
+@app.route('/register', methods = ['GET', 'POST'])
+def register():
+
+    error = None
+    form = UserForm(request.form)
+
+
+    if request.method == 'POST' and form.validate():
+
+        user = list(db.sqlalchemy_session.query(Users.display_name, Users.password).filter(
+            Users.display_name == request.form['username']))
+
+        if user:
+
+            error = 'Такой пользователь уже существует: придумайте другой username'
+        else:
+
+            user = Users(display_name = request.form['username'], password = request.form['password'], location = request.form['location'])
+            db.createUser(user)
+            flash('Спасибо за регистрацию')
+
+            return redirect(url_for('login'))
+
+    return render_template('userForm.html', form=form, tittle='Регистрация', error=error)
+
+
+@app.route('/<username>', methods = ['GET', 'POST'])
+def client(username):
+
+    client_id = list(db.sqlalchemy_session.query(Users.user_id).filter(Users.display_name == username))[0][0]
+    client_message = list(db.sqlalchemy_session.query(Message).filter(Message.user_fk == client_id))
+
+    form = messageClientForm(request.form)
+    form.messenger.choices = [(messenger.messenger_name, messenger.messenger_name) for messenger in db.sqlalchemy_session.query(Messenger).all()]
+    form.category.choices = [(category.category_name, category.category_name) for category in db.sqlalchemy_session.query(Category).all()]
+
+    if request.method == 'POST' and form.validate():
+        user = list(db.sqlalchemy_session.query(Users.user_id).filter(Users.display_name==username))[0][0]
+        tittle = form.tittle.data
+        body = form.body.data
+        messenger = list(db.sqlalchemy_session.query(Messenger.messenger_id).filter(Messenger.messenger_name==request.form['messenger']))[0][0]
+        category = list(db.sqlalchemy_session.query(Category.category_id).filter(Category.category_name==request.form['category']))[0][0]
+
+        message = Message(user_fk=user, tittle=tittle, body=body, messenger_fk=messenger, category_fk=category)
+        db.createMessage(message)
+        return redirect(url_for('client', username=username))
+
+    return render_template('client.html', client=username, messages = client_message, form=form)
 
 
 
-@app.route('/')
-def main_page():
-    return render_template('index.html')
+@app.route('/admin')
+def admin():
+    return render_template('admin_base.html')
 
 
-@app.route('/dashboard')
-def dashboard():
-    # message_data = db.fetchAllMessages()
-    # messager_id = []
-    # clicks = []
-    #
-    # for message in message_data:
-    #     messager_id.append(message.messenger)
-    #     clicks.append(message.count_clicks)
-    #
-    # bar = go.Bar(
-    #     x = messager_id,
-    #     y =clicks
-    # )
-
-    catagory_data = db.fetchAllCatagory()
-    catagory_name = []
-    population = []
-
-    for catagory in catagory_data:
-        catagory_name.append(catagory.catagory_name)
-        population.append(catagory.population)
-
-    pie = go.Pie(
-        labels = catagory_name,
-        values = population
-    )
-
-    attach_data = db.fetchAllAttaches()
-    attach_name = []
-    attach_size = []
-
-    for attach in attach_data:
-        attach_name.append(attach.name)
-        attach_size.append(attach.size)
-
-    bar = go.Bar(
-        x=attach_name,
-        y=attach_size
-    )
-
-    data = {
-        "bar": [bar],
-        "pie": [pie]
-    }
-
-
-
-    graphsJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template("dashboard.html", graphsJSON=graphsJSON)
-
-
-
-
-
-
-
-@app.route('/user')
+@app.route('/admin/user')
 def users():
     all_users = db.fetchAllUsers()
     return render_template('user.html', all_users=all_users)
 
-@app.route('/user/delete_user/<username>')
-def delete_user(username):
-    db.deleteUser(username)
+@app.route('/admin/user/delete_user/<user_id>')
+def delete_user(user_id):
+    db.deleteUser(user_id)
     return redirect(url_for("users"))
 
-@app.route('/user/edit/<username>', methods = ["GET", "POST"])
-def update_user(username):
-    user_data = db.fetchUser(username)
-    form = UpdateUserForm(first_name=user_data.first_name,
-                          second_name=user_data.second_name)
+@app.route('/admin/user/edit/<user_id>', methods = ["GET", "POST"])
+def update_user(user_id):
 
-    if request.method == "POST":
-        first_name = form.first_name.data
-        second_name = form.second_name.data
-        db.updateUserName(username, first_name, second_name)
-        return redirect(url_for("users"))
+    error = None
 
-    return render_template("UpdateUser.html", form=form)
+    user_data = db.fetchUser(user_id)
 
+    form = UserUpdateForm(request.form, username = user_data.display_name, location = user_data.location)
 
-@app.route('/user/create_new_user', methods = ["GET", "POST"])
-def create_user():
-    form = UserForm()
+    if request.method == "POST" and form.validate():
 
-    if request.method == "POST":
-        if not form.validate():
-            return render_template("CreateUser.html", form=form)
-        else:
             username = form.username.data
-            password = form.password.data
-            first_name = form.first_name.data
-            second_name = form.second_name.data
-            user = Users(username=username, password=password, first_name=first_name, second_name=second_name)
-            db.createUser(user)
-            return redirect(url_for("users"))
-    return render_template("CreateUser.html", form=form)
+
+            same_user = list(db.sqlalchemy_session.query(Users).filter(Users.display_name == request.form['username']))
+
+            if same_user and username != user_data.display_name:
+                error = 'Такой пользователь уже существует'
+            else:
+
+                if request.form['password'] == '':
+                    password = user_data.password
+                else:
+                    password = form.password.data
+
+                location = form.location.data
+
+                db.updateUser(user_id, display_name=username, password=password, location=location)
+
+                return redirect(url_for("users"))
 
 
+    return render_template("userUpdateForm.html", form=form, tittle = 'Изменить пользователя', error = error)
 
-#----------CATAGORY---------------
-@app.route('/catagory')
-def catagory():
-    all_catagory = db.fetchAllCatagory()
-    return render_template('catagory.html', all_catagory=all_catagory)
+@app.route('/admin/user/create_new_user', methods = ["GET", "POST"])
+def create_user():
 
-@app.route('/catagory/delete_catagory/<catagory_name>')
-def delete_catagory(catagory_name):
-    db.deleteCatagory(catagory_name)
-    return redirect(url_for("catagory"))
-
-@app.route('/catagory/edit/<catagory_name>', methods = ["GET", "POST"])
-def update_catagory(catagory_name):
-    catagory_data = db.fetchCatagory(catagory_name)
-    form = UpdateCatagoryForm(population=catagory_data.population)
-
-    if request.method == "POST":
-        population = form.population.data
-        db.updateCatagoryPopulation(catagory_name, population)
-        return redirect(url_for("catagory"))
-
-    return render_template("UpdateCatagory.html", form=form)
+    error = None
+    form = UserForm(request.form)
 
 
-@app.route('/catagory/create_new_catagory', methods = ["GET", "POST"])
-def create_catagory():
-    form = CatagoryForm()
+    if request.method == "POST" and form.validate():
 
-    if request.method == "POST":
-        if not form.validate():
-            return render_template("CreateCatagory.html", form=form)
+        user = list(db.sqlalchemy_session.query(Users.display_name, Users.password).filter(
+            Users.display_name == request.form['username']))
+
+        if user:
+            error = 'Такой пользователь уже существует: придумайте другой username'
         else:
-            catagory_name = form.catagory_name.data
-            population = form.population.data
-            catagory = Catagory(catagory_name=catagory_name, population=population)
-            db.createCatagory(catagory)
-            return redirect(url_for("catagory"))
-    return render_template("CreateCatagory.html", form=form)
+            user = Users(display_name=request.form['username'], password=request.form['password'],
+                         location=request.form['location'])
+            db.createUser(user)
 
-#--------MESSAGE----------------------------------------------
+            return redirect(url_for('users'))
 
-@app.route('/messages')
+
+    return render_template('userForm.html', form=form, tittle='Создать нового пользователя', error = error)
+
+@app.route('/admin/category')
+def category():
+    all_category = db.fetchAllCategory()
+    return render_template('category.html', all_category=all_category)
+
+@app.route('/admin/category/delete_category/<category_id>')
+def delete_category(category_id):
+    db.deleteCategory(category_id)
+    return redirect(url_for("category"))
+#
+@app.route('/admin/category/edit/<category_id>', methods = ["GET", "POST"])
+def update_category(category_id):
+
+    error = None
+    category_data = db.fetchCategory(category_id)
+
+
+    form = CategoryForm(request.form,\
+                        category_name = category_data.category_name,
+                        amount = category_data.population_count )
+
+    if request.method == "POST" and form.validate():
+
+        categories = list(db.sqlalchemy_session.query(Category.category_name).
+                          filter(Category.category_name == request.form['category_name']))
+
+        if categories and request.form['category_name'] != category_data.category_name:
+            error = 'Такая категория уже существует'
+        else:
+
+            category_name = form.category_name.data
+            amount = form.amount.data
+            db.updateCategory(category_id, category_name, amount)
+            return redirect(url_for("category"))
+
+    return render_template("categoryForm.html", form=form, tittle = 'Изменить категорию', error = error)
+
+@app.route('/admin/category/create_new_category', methods = ["GET", "POST"])
+def create_category():
+
+    error = None
+
+    form = CategoryForm(request.form)
+
+    if request.method == "POST" and form.validate():
+
+        categories = list(db.sqlalchemy_session.query(Category.category_name).
+                          filter(Category.category_name == request.form['category_name']))
+
+        if categories:
+            error = 'Такая категория уже существует'
+        else:
+            category_name = form.category_name.data
+            amount = form.amount.data
+            category = Category(category_name=category_name, population_count=amount)
+            db.createCategory(category)
+
+            return redirect(url_for("category"))
+
+    return render_template("categoryForm.html", form=form, tittle = 'Создать новую категорию', error = error)
+
+
+@app.route('/admin/messenger')
+def messengers():
+    all_messengers = db.fetchAllMessenger()
+    return render_template('messenger.html', all_messengers=all_messengers)
+
+
+@app.route('/admin/messenger/delete_messenger/<messenger_id>')
+def delete_messenger(messenger_id):
+    db.deleteMessenger(messenger_id)
+    return redirect(url_for("messengers"))
+
+@app.route('/admin/messenger/edit_messenger/<messenger_id>', methods=['POST', 'GET'])
+def update_messenger(messenger_id):
+    error = None
+
+    messenger_data = db.fetchMessenger(messenger_id)
+
+    form = MessengerForm(request.form,
+                         messenger_name=messenger_data.messenger_name)
+
+    if request.method == 'POST' and form.validate():
+
+        same_messenger = list(db.sqlalchemy_session.query(Messenger).
+                              filter(Messenger.messenger_name == request.form['messenger_name']))
+        if same_messenger and request.form['messenger_name'] != messenger_data.messenger_name:
+            error = 'Такая категория уже существует'
+        else:
+            messenger_name = form.messenger_name.data
+
+            db.updateMessenger(messenger_id, messenger_name)
+            return redirect(url_for('messengers'))
+
+    return render_template('messengerForm.html', form = form, tittle = 'Изменить messenger', error=error)
+
+@app.route('/admin/messenger/create_new_messenger', methods = ["GET", "POST"])
+def create_messenger():
+
+    error = None
+
+    form = MessengerForm(request.form)
+
+    if request.method == "POST" and form.validate():
+
+        same_messenger = list(db.sqlalchemy_session.query(Messenger).
+                              filter(Messenger.messenger_name == request.form['messenger_name']))
+
+        if same_messenger:
+            error = 'Такая категория уже существует'
+        else:
+            messenger_name = form.messenger_name.data
+            messenger = Messenger(messenger_name=messenger_name)
+            db.createMessenger(messenger)
+
+            return redirect(url_for("messengers"))
+
+    return render_template("messengerForm.html", form=form, tittle = 'Создать новый messenger', error=error)
+
+@app.route('/admin/messages')
 def messages():
     all_messages = db.fetchAllMessages()
-    return render_template('messages.html', all_messages=all_messages)
+    all_users = db.fetchAllUsers()
+    all_messengers = db.fetchAllMessenger()
+    all_categories = db.fetchAllCategory()
 
-@app.route('/messages/delete_message/<message_id>')
+    return render_template('messages.html', all_messages=all_messages, all_users = all_users, all_messengers = all_messengers, all_categories
+                           =all_categories)
+
+@app.route('/admin/messages/delete/<message_id>')
 def delete_message(message_id):
     db.deleteMessage(message_id)
     return redirect(url_for('messages'))
 
-@app.route('/messages/edit/<message_id>', methods = ["GET", "POST"])
+
+@app.route('/admin/messages/edit/<message_id>', methods = ['POST', 'GET'])
 def update_message(message_id):
+
+    error = None
+
     message_data = db.fetchMessage(message_id)
-    form = MessageForm(recipient=message_data.recipient,
-                          sender=message_data.sender,
-                       messenger=message_data.messenger,
-                       content=message_data.content,
-                       catagory=message_data.catagory,
-                       count_clicks=message_data.count_clicks)
 
-    if request.method == "POST":
-        recipient = form.recipient.data
-        sender = form.sender.data
-        messenger = form.messenger.data
-        content = form.content.data
-        catagory = form.catagory.data
-        count_clicks = form.count_clicks.data
 
-        db.updateCatagoryMessage(message_id, recipient, sender, messenger, content, catagory, count_clicks)
+    user_name = list(db.sqlalchemy_session.query(Users.display_name).filter(Users.user_id == message_data.user_fk))
+
+    if user_name:
+        user_name = user_name[0][0]
+    else:
+        user_name = ''
+
+    if message_data.messenger_fk is not None:
+        messenger_name = list(db.sqlalchemy_session.query(Messenger.messenger_name).filter(
+            Messenger.messenger_id == message_data.messenger_fk))[0][0]
+    else:
+        messenger_name = None
+
+
+    if message_data.category_fk is not None:
+        category_name = list(db.sqlalchemy_session.query(Category.category_name).filter(
+            Category.category_id == message_data.category_fk))[0][0]
+    else:
+        category_name = None
+
+
+    form = messageUpdateForm(request.form, messenger = messenger_name, category = category_name)
+
+    form.messenger.choices =[(messenger.messenger_name, messenger.messenger_name) for messenger in db.sqlalchemy_session.query(Messenger).all()]
+    form.category.choices = [(category.category_name, category.category_name) for category in db.sqlalchemy_session.query(Category).all()]
+
+
+    if request.method == 'POST' and form.validate():
+
+        if request.form['messenger'] is None:
+            messenger_id = None
+        else:
+            messenger_id = list(db.sqlalchemy_session.query(Messenger.messenger_id).filter(
+            Messenger.messenger_name == request.form['messenger']))[0][0]
+
+        categories = list(db.sqlalchemy_session.query(Category.category_id).filter(
+            Category.category_name == request.form['category']))
+
+        if categories:
+            category_id = categories[0][0]
+        else:
+            category_id = None
+
+        db.updateMessage_second(message_id=message_id, messenger = messenger_id, category = category_id)
+        return redirect(url_for('messages'))
+
+    return render_template('messageUpdateForm.html', form=form, data = message_data, user = user_name, error=error)
+
+
+
+
+@app.route('/admin/messages/create_new_message', methods = ["GET", "POST"])
+def create_message():
+
+    error = []
+
+    form = messageCreateForm(request.form)
+
+    form.user.choices = [(user.display_name, user.display_name)
+                         for user in db.sqlalchemy_session.query(Users).all()]
+    form.messenger.choices = [(messenger.messenger_name, messenger.messenger_name)
+                              for messenger in db.sqlalchemy_session.query(Messenger).all()]
+    form.category.choices = [(category.category_name, category.category_name)
+                             for category in db.sqlalchemy_session.query(Category).all()]
+
+    if request.method == "POST" and form.validate():
+
+        user = list(db.sqlalchemy_session.query(Users.user_id).filter(Users.display_name == request.form['user']))[0][0]
+        tittle = form.tittle.data
+        body = form.body.data
+        messenger = list(db.sqlalchemy_session.query(Messenger.messenger_id).filter(Messenger.messenger_name == request.form['messenger']))[0][0]
+        category = list(db.sqlalchemy_session.query(Category.category_id).filter(Category.category_name == request.form['category']))[0][0]
+
+        message = Message(tittle=tittle, body=body, user_fk=user, messenger_fk=messenger, category_fk=category)
+        db.createMessage(message)
         return redirect(url_for("messages"))
 
-    return render_template("UpdateMessage.html", form=form)
+    return render_template("messageForm.html", form=form, tittle = 'Создать новое сообщение', error = error)
 
-
-@app.route('/messages/create_new_message', methods = ["GET", "POST"])
-def create_message():
-    form = MessageForm()
-
-    if request.method == "POST":
-        if not form.validate():
-            return render_template("CreateMessage.html", form=form)
-        else:
-            recipient = form.recipient.data
-            sender = form.sender.data
-            messenger = form.messenger.data
-            content = form.content.data
-            catagory = form.catagory.data
-            count_clicks = form.count_clicks.data
-
-
-            message = Message(recipient=recipient, sender=sender, messenger=messenger, content=content, catagory=catagory, count_clicks=count_clicks )
-            db.create_messege(message)
-            return redirect(url_for("messages"))
-    return render_template("CreateMessage.html", form=form)
-
-
-#-------TASK--------
-
-@app.route('/get')
-def get_new():
-    first = Attach(file_type = '.pdf', name = 'pic1', size = '15')
-    second = Attach(file_type = '.pdf', name = 'pic2', size = '20')
-    third = Attach(file_type = '.txt', name = 'cur', size = '50')
-    db.addAttach(first)
-    db.addAttach(second)
-    db.addAttach(third)
-    return 'Succesfull!'
-
-@app.route('/show')
-def attaches():
-    all_attaches = db.fetchAllAttaches()
-    return render_template('attach.html', all_attaches=all_attaches)
-
-@app.route('/create_attache')
-def create_attach():
-    form = AttachForm()
-
-    if request.method == "POST":
-        if not form.validate():
-            return render_template("CreateAttach.html", form=form)
-        else:
-            file_type = form.file_type.data
-            name = form.name.data
-            size = form.size.data
-
-            attach = Attach(file_type=file_type, name=name, size=size)
-            db.addAttach(attach)
-            return redirect(url_for("attaches"))
-    return render_template("CreateAttach.html", form=form)
-
-
+# @app.route('/dashboard')
+# def dashboard():
+#     # message_data = db.fetchAllMessages()
+#     # messager_id = []
+#     # clicks = []
+#     #
+#     # for message in message_data:
+#     #     messager_id.append(message.messenger)
+#     #     clicks.append(message.count_clicks)
+#     #
+#     # bar = go.Bar(
+#     #     x = messager_id,
+#     #     y =clicks
+#     # )
+#
+#     catagory_data = db.fetchAllCatagory()
+#     catagory_name = []
+#     population = []
+#
+#     for catagory in catagory_data:
+#         catagory_name.append(catagory.catagory_name)
+#         population.append(catagory.population)
+#
+#     pie = go.Pie(
+#         labels = catagory_name,
+#         values = population
+#     )
+#
+#     attach_data = db.fetchAllAttaches()
+#     attach_name = []
+#     attach_size = []
+#
+#     for attach in attach_data:
+#         attach_name.append(attach.name)
+#         attach_size.append(attach.size)
+#
+#     bar = go.Bar(
+#         x=attach_name,
+#         y=attach_size
+#     )
+#
+#     data = {
+#         "bar": [bar],
+#         "pie": [pie]
+#     }
+#
+#
+#
+#     graphsJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+#     return render_template("dashboard.html", graphsJSON=graphsJSON)
 
 if __name__ == '__main__':
     app.run(debug=True)
